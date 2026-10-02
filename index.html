@@ -3220,6 +3220,13 @@ let currentCarData=null;
 let currentChatBuyerId=null;
 let carsCache=null;
 
+// حالة صلاحية لوحة الإدارة. لا توجد صلاحية إدارية معرفة في الواجهة الحالية،
+// لذلك تبقى false حتى يتم ربطها بسياسة/جدول إداري آمن في Supabase.
+async function refreshAdminStatus(){
+  isAdmin=false;
+  if(!currentUser) return;
+}
+
 async function initAuth(){
 
   const{
