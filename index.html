@@ -4019,15 +4019,18 @@ async function addCar() {
     return;
   }
 
-  // احصل على عناصر الحقول لديك (تأكد من مطابقة أسماء الـ IDs مع الكود الخاص بك)
   const brand = document.getElementById('carBrand').value;
   const model = document.getElementById('carModel').value;
   const price = parseFloat(document.getElementById('carPrice').value);
-  const fileInput = document.getElementById('carImageFile'); // حقل اختيار الصورة
+  const fileInput = document.getElementById('carImageFile');
+  
+  if (!brand || !model || !price) {
+    alert('الرجاء تعبئة الحقول الأساسية');
+    return;
+  }
 
   let imageUrl = '';
 
-  // 1. رفع الصورة أولاً إذا تم اختيارها
   if (fileInput && fileInput.files && fileInput.files[0]) {
     const file = fileInput.files[0];
     const fileExt = file.name.split('.').pop();
@@ -4042,7 +4045,6 @@ async function addCar() {
       return;
     }
 
-    // 2. جلب الرابط المباشر للصورة المرفوعة
     const { data: publicURLData } = supabase.storage
       .from('car-images')
       .getPublicUrl(fileName);
@@ -4050,16 +4052,26 @@ async function addCar() {
     imageUrl = publicURLData.publicUrl;
   }
 
-  // 3. إكمال باقي كود حفظ بيانات السيارة في جدول قاعدة البيانات مع رابط الصورة (imageUrl)
-  // ... (ضع باقي كود الحفظ الأصلي الخاص بك هنا مع إضافة حقل image_url: imageUrl)
-}
+  const { data, error } = await supabase
+    .from('cars')
+    .insert([
+      { 
+        brand: brand, 
+        model: model, 
+        price: price, 
+        image_url: imageUrl,
+        user_id: currentUser.id,
+        created_at: new Date()
+      }
+    ]);
 
-  const btn=
-    document.getElementById(
-      "publishBtn"
-    );
+  if (error) {
+    alert('خطأ أثناء حفظ الإعلان: ' + error.message);
+  } else {
+    alert('تم بنجاح رفع الصورة ونشر الإعلان!');
+  }
 
-  /* حدّ سبام بسيط: إعلان واحد لكل حساب خلال 24 ساعة.
+ /* حدّ سبام بسيط: إعلان واحد لكل حساب خلال 24 ساعة.
      يجب دعم هذا أيضاً بسياسة/Trigger في Supabase للحماية من التحايل المباشر على API. */
   const since=new Date(Date.now()-24*60*60*1000).toISOString();
   const {data:recentAds,error:rateError}=await supabaseClient
