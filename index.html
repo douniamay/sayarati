@@ -1721,133 +1721,18 @@ style="color:#ef4444;font-size:11px;margin-top:8px;display:none">
 
 <div class="modal-box">
 
-<button
-class="close-x"
-onclick="closeModal('addModal')">
-✕
-</button>
+<div class="box">
+  <h4>إضافة سيارة جديدة مع صورة</h4>
+  <input class="input" id="carBrand" type="text" placeholder="الماركة (مثال: Renault)">
+  <input class="input" id="carModel" type="text" placeholder="الموديل (مثال: Clio)">
+  <input class="input" id="carPrice" type="number" placeholder="السعر (دج)">
+  
+  <!-- حقل اختيار الصورة -->
+  <label style="font-size:12px; font-weight:700; color:#475569; display:block; margin-top:8px;">صورة السيارة:</label>
+  <input class="input" id="carImageFile" type="file" accept="image/*" style="padding:8px;">
 
-<h3 data-i18n="addCarTitle"></h3>
-
-<select class="input" id="category"></select>
-
-<input
-class="input"
-id="brand"
-data-i18n-ph="brand">
-
-<input
-class="input"
-id="model"
-data-i18n-ph="model">
-
-<div class="row">
-
-<input
-class="input"
-id="year"
-type="number"
-data-i18n-ph="year">
-
-<input
-class="input"
-id="price"
-type="number"
-data-i18n-ph="priceDzd">
-
+  <button class="btn" onclick="uploadCarWithImage()" style="width:100%; margin-top:12px;">نشر الإعلان</button>
 </div>
-
-<div class="row">
-
-<input
-class="input"
-id="mileage"
-type="number"
-placeholder="km">
-
-<select
-class="input"
-id="wilaya">
-</select>
-
-</div>
-
-<div class="row">
-
-<select
-class="input"
-id="fuel">
-
-<option>بنزين</option>
-<option>ديزل</option>
-<option>غاز</option>
-<option>هجين</option>
-
-</select>
-
-<select
-class="input"
-id="gearbox">
-
-<option>يدوي</option>
-<option>أوتوماتيك</option>
-
-</select>
-
-</div>
-
-<input
-class="input"
-id="phone"
-data-i18n-ph="phone">
-
-<div
-style="background:#f0fdf4;padding:12px;border-radius:12px;border:2px dashed #22c55e;margin:10px 0">
-
-<label
-style="font-weight:900;display:block"
-data-i18n="photos">
-</label>
-
-<input
-type="file"
-id="carImages"
-multiple
-accept="image/*"
-class="input"
-style="background:#fff;margin-top:8px">
-
-</div>
-
-<textarea
-class="input"
-id="desc"
-data-i18n-ph="description">
-</textarea>
-
-<div
-class="row"
-style="margin-top:12px">
-
-<button
-class="btn"
-style="background:#e2e8f0"
-onclick="closeModal('addModal')"
-data-i18n="cancel">
-</button>
-
-<button
-class="btn"
-id="publishBtn"
-onclick="addCar()"
-data-i18n="publish">
-</button>
-
-</div>
-
-</div>
-</div>
-
 <!-- ================= CHAT ================= -->
 
 <div class="modal" id="chatModal">
