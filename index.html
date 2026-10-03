@@ -4013,14 +4013,46 @@ async function deleteCar(id){
 
 }
 
-async function addCar(){
-
+async function addCar() {
   if(!currentUser){
-
     openModal("loginModal");
-
     return;
   }
+
+  // احصل على عناصر الحقول لديك (تأكد من مطابقة أسماء الـ IDs مع الكود الخاص بك)
+  const brand = document.getElementById('carBrand').value;
+  const model = document.getElementById('carModel').value;
+  const price = parseFloat(document.getElementById('carPrice').value);
+  const fileInput = document.getElementById('carImageFile'); // حقل اختيار الصورة
+
+  let imageUrl = '';
+
+  // 1. رفع الصورة أولاً إذا تم اختيارها
+  if (fileInput && fileInput.files && fileInput.files[0]) {
+    const file = fileInput.files[0];
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('car-images')
+      .upload(fileName, file);
+
+    if (uploadError) {
+      alert('خطأ أثناء رفع الصورة: ' + uploadError.message);
+      return;
+    }
+
+    // 2. جلب الرابط المباشر للصورة المرفوعة
+    const { data: publicURLData } = supabase.storage
+      .from('car-images')
+      .getPublicUrl(fileName);
+
+    imageUrl = publicURLData.publicUrl;
+  }
+
+  // 3. إكمال باقي كود حفظ بيانات السيارة في جدول قاعدة البيانات مع رابط الصورة (imageUrl)
+  // ... (ضع باقي كود الحفظ الأصلي الخاص بك هنا مع إضافة حقل image_url: imageUrl)
+}
 
   const btn=
     document.getElementById(
