@@ -217,6 +217,27 @@ header h1 span{
   .advanced-filters .filter-search,.advanced-filters .filter-submit{grid-column:1/-1}
 }
 
+.advanced-filters{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  overflow:visible;
+  align-items:stretch;
+}
+.filter-row{display:grid;gap:8px;width:100%;}
+.filter-row-top{grid-template-columns:1fr 1fr 1.5fr;}
+.filter-row-bottom{grid-template-columns:1fr 1fr 1fr 1fr 1fr auto;}
+.filter-row .filter-field{width:100%;min-width:0;}
+.price-hint{text-align:center;color:#64748b;font-size:10px;font-weight:700;min-height:14px;}
+@media(max-width:800px){
+ .filter-row-top,.filter-row-bottom{grid-template-columns:1fr 1fr;}
+ .filter-row-top .filter-search,.filter-row-bottom .filter-submit{grid-column:1/-1;}
+}
+@media(max-width:480px){
+ .filter-row-top,.filter-row-bottom{grid-template-columns:1fr;}
+ .filter-row-top .filter-search,.filter-row-bottom .filter-submit{grid-column:auto;}
+}
+
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
@@ -1007,24 +1028,22 @@ data-i18n="loading"></p>
 
 <div class="filters advanced-filters">
 
-<select id="filterCategory" class="input filter-field filter-select" style="margin:0" onchange="applyFilters()"></select>
+  <div class="filter-row filter-row-top">
+    <select id="filterCategory" class="input filter-field filter-select" style="margin:0" onchange="applyFilters()"></select>
+    <select id="filterWilaya" class="input filter-field filter-select filter-wilaya" style="margin:0" onchange="applyFilters()"></select>
+    <input id="filterSearch" class="input filter-field filter-search" type="search" name="thika_car_search" autocomplete="off" inputmode="search" spellcheck="false" data-i18n-ph="search" style="margin:0" oninput="applyFilters()">
+  </div>
 
-<select id="filterWilaya" class="input filter-field filter-select filter-wilaya" style="margin:0" onchange="applyFilters()"></select>
+  <div class="filter-row filter-row-bottom">
+    <input id="filterMinPrice" class="input filter-field filter-number" type="number" min="0" inputmode="numeric" autocomplete="off" data-i18n-ph="minPrice" style="margin:0" oninput="applyFilters()">
+    <input id="filterMaxPrice" class="input filter-field filter-number" type="number" min="0" inputmode="numeric" autocomplete="off" data-i18n-ph="maxPrice" style="margin:0" oninput="applyFilters()">
+    <input id="filterMinYear" class="input filter-field filter-year" type="number" min="1900" max="2100" inputmode="numeric" autocomplete="off" data-i18n-ph="minYear" style="margin:0" oninput="applyFilters()">
+    <input id="filterMaxYear" class="input filter-field filter-year" type="number" min="1900" max="2100" inputmode="numeric" autocomplete="off" data-i18n-ph="maxYear" style="margin:0" oninput="applyFilters()">
+    <input id="filterMaxMileage" class="input filter-field filter-mileage" type="number" min="0" inputmode="numeric" autocomplete="off" data-i18n-ph="maxMileage" style="margin:0" oninput="applyFilters()">
+    <button class="btn filter-submit" onclick="applyFilters()" style="white-space:nowrap" data-i18n="filter"></button>
+  </div>
 
-<input id="filterSearch" class="input filter-field filter-search" type="search" name="thika_car_search" autocomplete="off" inputmode="search" spellcheck="false" data-i18n-ph="search" style="margin:0" oninput="applyFilters()">
-
-<input id="filterMinPrice" class="input filter-field filter-number" type="number" min="0" inputmode="numeric" autocomplete="off" data-i18n-ph="minPrice" style="margin:0" oninput="applyFilters()">
-
-<input id="filterMaxPrice" class="input filter-field filter-number" type="number" min="0" inputmode="numeric" autocomplete="off" data-i18n-ph="maxPrice" style="margin:0" oninput="applyFilters()">
-
-<input id="filterMinYear" class="input filter-field filter-year" type="number" min="1900" max="2100" inputmode="numeric" autocomplete="off" data-i18n-ph="minYear" style="margin:0" oninput="applyFilters()">
-
-<input id="filterMaxYear" class="input filter-field filter-year" type="number" min="1900" max="2100" inputmode="numeric" autocomplete="off" data-i18n-ph="maxYear" style="margin:0" oninput="applyFilters()">
-
-<input id="filterMaxMileage" class="input filter-field filter-mileage" type="number" min="0" inputmode="numeric" autocomplete="off" data-i18n-ph="maxMileage" style="margin:0" oninput="applyFilters()">
-
-<button class="btn filter-submit" onclick="applyFilters()" style="white-space:nowrap" data-i18n="filter"></button>
-
+  <div class="price-hint" id="priceHint"></div>
 </div>
 
 <p
@@ -3882,6 +3901,7 @@ async function loadCars(){
   }
 
   carsCache=data;
+  updatePriceGuide();
 
   renderCars();
 
@@ -3897,6 +3917,17 @@ function applyFilters(){
   const input=document.getElementById("filterSearch");
   if(input && /@/.test(input.value)) input.value="";
   renderCars();
+}
+
+function updatePriceGuide(){
+  const hint=document.getElementById("priceHint");
+  if(!hint || !Array.isArray(carsCache) || !carsCache.length)return;
+  const prices=carsCache.map(c=>Number(c.price)).filter(n=>Number.isFinite(n)&&n>0);
+  if(!prices.length){hint.textContent="";return;}
+  const min=Math.min(...prices);
+  const max=Math.max(...prices);
+  const money=n=>new Intl.NumberFormat("fr-DZ").format(n)+" دج";
+  hint.textContent=`أقل سعر معلن: ${money(min)} • أعلى سعر معلن: ${money(max)}${max>3000000?" • توجد إعلانات فوق 3,000,000 دج":""}`;
 }
 
 function renderCars(){
