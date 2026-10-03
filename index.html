@@ -197,9 +197,10 @@ header h1 span{
   padding:12px 16px;
   display:flex;
   gap:8px;
+  overflow:auto;
+  border-bottom:1px solid #e2e8f0;
   flex-wrap:wrap;
-  align-items:center;
-  border-bottom:1px solid #e2e8f0
+  align-items:center
 }
 
 .grid{
@@ -407,6 +408,19 @@ footer{
   margin-top:20px;
   font-size:12px
 }
+
+/* لوحة التحكم والإدارة */
+.dashboard-page, .admin-page{ max-width:1180px; margin:0 auto; padding:18px }
+.dashboard-head, .admin-head{ background:linear-gradient(135deg,#0f172a,#1e3a8a); color:#fff; border-radius:20px; padding:22px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; gap:15px; flex-wrap:wrap }
+.dashboard-layout, .admin-layout{ display:grid; grid-template-columns:230px 1fr; gap:16px; align-items:start }
+.dashboard-sidebar, .admin-sidebar{ background:#fff; border:2px solid #e2e8f0; border-radius:18px; padding:10px; position:sticky; top:80px }
+.dashboard-nav, .admin-nav{ width:100%; border:none; background:transparent; padding:12px; border-radius:11px; text-align:start; cursor:pointer; font-size:12px; font-weight:800; color:#475569; margin-bottom:4px }
+.dashboard-nav.active, .admin-nav.active{ background:#0f172a; color:#fff }
+.dashboard-section, .admin-section{ display:none }
+.dashboard-section.active, .admin-section.active{ display:block }
+.stats-grid, .admin-stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:14px }
+.stat-card, .admin-stat{ background:#fff; border:2px solid #e2e8f0; border-radius:16px; padding:16px }
+.dashboard-box, .admin-box{ background:#fff; border:2px solid #e2e8f0; border-radius:18px; padding:16px; margin-bottom:14px }
 </style>
 </head>
 
@@ -426,29 +440,29 @@ footer{
 </header>
 
 <div class="trust-bar">
-  <span data-i18n="trust1"></span>
-  <span data-i18n="trust2"></span>
-  <span data-i18n="trust3"></span>
+  <span data-i18n="trust1">🔒 منصة موثوقة للسيارات في الجزائر</span>
+  <span data-i18n="trust2">🚗 إعلانات معتمدة وفحص دوري</span>
+  <span data-i18n="trust3">📞 دعم فني متواصل</span>
 </div>
 
 <!-- ================= HOME ================= -->
 <div id="homePage" class="view">
   <div class="hero">
-    <h2 style="font-size:20px" data-i18n="heroTitle"></h2>
-    <p style="font-size:12px;margin-top:6px;opacity:.9" data-i18n="heroText"></p>
-    <p id="status" style="margin-top:10px;font-size:11px;opacity:.75" data-i18n="loading"></p>
+    <h2 style="font-size:20px" data-i18n="heroTitle">سوق السيارات المستعملة والجديدة في الجزائر</h2>
+    <p style="font-size:12px;margin-top:6px;opacity:.9" data-i18n="heroText">تصفح آلاف السيارات، تواصل مباشرة مع البائعين، واعرض سيارتك بكل سهولة.</p>
+    <p id="status" style="margin-top:10px;font-size:11px;opacity:.75">جاري التحميل...</p>
   </div>
 
-  <!-- الفلاتر المتقدمة المدمجة -->
+  <!-- الفلاتر المتقدمة المرتبة بدقة -->
   <div class="filters">
-    <select id="filterCategory" class="input" style="margin:0; min-width:140px" onchange="applyFilters()">
+    <select id="filterCategory" class="input" style="margin:0; width:150px;" onchange="applyFilters()">
       <option value="">كل الفئات</option>
       <option value="سياحية">سياحية</option>
       <option value="نفعية">نفعية</option>
       <option value="فاخرة">فاخرة</option>
     </select>
 
-    <select id="filterWilaya" class="input" style="margin:0; min-width:140px" onchange="applyFilters()">
+    <select id="filterWilaya" class="input" style="margin:0; width:150px;" onchange="applyFilters()">
       <option value="">كل الولاية</option>
       <option value="الجزائر">الجزائر</option>
       <option value="وهران">وهران</option>
@@ -456,23 +470,20 @@ footer{
       <option value="عنابة">عنابة</option>
     </select>
 
-    <input id="filterSearch" class="input" type="search" placeholder="ابحث عن ماركة، موديل..." style="margin:0; flex:1; min-width:140px" oninput="applyFilters()">
+    <input id="filterSearch" class="input" type="search" placeholder="ابحث عن ماركة، موديل..." style="margin:0; flex:1; min-width:160px;" oninput="applyFilters()">
 
-    <!-- نطاق السعر -->
-    <input id="filterMinPrice" class="input" type="number" placeholder="أقل سعر (دج)" style="margin:0; width:115px" oninput="applyFilters()">
-    <input id="filterMaxPrice" class="input" type="number" placeholder="أعلى سعر (دج)" style="margin:0; width:115px" oninput="applyFilters()">
+    <input id="filterMinPrice" class="input" type="number" placeholder="أقل سعر (دج)" style="margin:0; width:125px;" oninput="applyFilters()">
+    <input id="filterMaxPrice" class="input" type="number" placeholder="أعلى سعر (دج)" style="margin:0; width:125px;" oninput="applyFilters()">
 
-    <!-- نطاق سنة الصنع -->
-    <input id="filterMinYear" class="input" type="number" placeholder="من سنة" style="margin:0; width:85px" oninput="applyFilters()">
-    <input id="filterMaxYear" class="input" type="number" placeholder="إلى سنة" style="margin:0; width:85px" oninput="applyFilters()">
+    <input id="filterMinYear" class="input" type="number" placeholder="من سنة" style="margin:0; width:90px;" oninput="applyFilters()">
+    <input id="filterMaxYear" class="input" type="number" placeholder="إلى سنة" style="margin:0; width:90px;" oninput="applyFilters()">
 
-    <!-- المسافة المقطوعة -->
-    <input id="filterMaxMileage" class="input" type="number" placeholder="أقصى كم" style="margin:0; width:100px" oninput="applyFilters()">
+    <input id="filterMaxMileage" class="input" type="number" placeholder="أقصى كم" style="margin:0; width:100px;" oninput="applyFilters()">
 
-    <button class="btn" onclick="applyFilters()" style="white-space:nowrap" data-i18n="filter">بحث وتصفية</button>
+    <button class="btn" onclick="applyFilters()" style="white-space:nowrap; padding:12px 18px;" data-i18n="filter">بحث وتصفية</button>
   </div>
 
-  <p style="padding:8px 16px;text-align:center;color:#64748b;font-size:11px" data-i18n="ownerHelp"></p>
+  <p style="padding:8px 16px;text-align:center;color:#64748b;font-size:11px">استخدم الفلاتر المتقدمة أعلاه لتصفية النتائج بدقة وسرعة.</p>
 
   <div class="grid" id="carsGrid"></div>
 </div>
@@ -481,7 +492,7 @@ footer{
 <div class="modal" id="loginModal">
   <div class="modal-box">
     <button class="close-x" onclick="closeModal('loginModal')">✕</button>
-    <h3 data-i18n="loginTitle">تسجيل الدخول</h3>
+    <h3>تسجيل الدخول</h3>
     <input class="input" id="loginEmail" type="email" placeholder="البريد الإلكتروني">
     <input class="input" id="loginPassword" type="password" placeholder="كلمة المرور">
     <button class="btn" onclick="doLogin()" style="width:100%;padding:12px;margin-top:8px">دخول</button>
@@ -499,7 +510,6 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentLang = 'ar';
 let allCars = [
-  // بيانات تجريبية لاختبار الفلاتر فوراً
   { id: 1, brand: 'Renault', model: 'Clio 4', year: 2019, price: 2600000, mileage: 75000, wilaya: 'الجزائر', category: 'سياحية', fuel: 'ديزل', gearbox: 'يدوي', is_featured: true, image_url: '' },
   { id: 2, brand: 'Toyota', model: 'Hilux', year: 2022, price: 6500000, mileage: 30000, wilaya: 'وهران', category: 'نفعية', fuel: 'ديزل', gearbox: 'أوتوماتيك', is_featured: false, image_url: '' },
   { id: 3, brand: 'Hyundai', model: 'Accent', year: 2017, price: 2100000, mileage: 120000, wilaya: 'قسنطينة', category: 'سياحية', fuel: 'بنزين', gearbox: 'يدوي', is_featured: false, image_url: '' }
@@ -508,37 +518,19 @@ let filteredCars = [];
 
 const translations = {
   ar: {
-    trust1: "🔒 منصة موثوقة للسيارات في الجزائر",
-    trust2: "🚗 إعلانات معتمدة وفحص دوري",
-    trust3: "📞 دعم فني متواصل",
     heroTitle: "سوق السيارات المستعملة والجديدة في الجزائر",
     heroText: "تصفح آلاف السيارات، تواصل مباشرة مع البائعين، واعرض سيارتك بكل سهولة.",
-    loading: "جاري تحميل الإعلانات...",
-    filter: "بحث وتصفية",
-    ownerHelp: "استخدم الفلاتر المتقدمة أعلاه لتصفية النتائج بدقة وسرعة.",
-    loginTitle: "تسجيل الدخول"
+    filter: "بحث وتصفية"
   },
   fr: {
-    trust1: "🔒 Plateforme automobile de confiance en Algérie",
-    trust2: "🚗 Annonces vérifiées et inspection régulière",
-    trust3: "📞 Support technique continu",
     heroTitle: "Marché des voitures neuves et d'occasion en Algérie",
     heroText: "Parcourez des milliers de véhicules et contactez directement les vendeurs.",
-    loading: "Chargement des annonces...",
-    filter: "Filtrer",
-    ownerHelp: "Utilisez les filtres avancés ci-dessus pour affiner votre recherche.",
-    loginTitle: "Connexion"
+    filter: "Filtrer"
   },
   en: {
-    trust1: "🔒 Trusted Automotive Platform in Algeria",
-    trust2: "🚗 Verified listings & inspections",
-    trust3: "📞 Continuous support",
     heroTitle: "New & Used Car Market in Algeria",
     heroText: "Browse thousands of vehicles and connect directly with sellers.",
-    loading: "Loading listings...",
-    filter: "Filter",
-    ownerHelp: "Use the advanced filters above to find your ideal car.",
-    loginTitle: "Login"
+    filter: "Filter"
   }
 };
 
@@ -549,13 +541,6 @@ function setLanguage(lang) {
 
   document.querySelectorAll('.lang-switcher button').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
-  });
-
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (translations[lang][key]) {
-      el.textContent = translations[lang][key];
-    }
   });
 }
 
