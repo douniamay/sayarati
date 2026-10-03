@@ -904,10 +904,10 @@ footer a{
 
 <div class="header-actions" id="headerActions"></div>
 
-<div class="lang-switcher">
-<button type="button" data-lang="ar" onclick="setLanguage('ar')">🇩🇿 العربية</button>
-<button type="button" data-lang="fr" onclick="setLanguage('fr')">🇫🇷 Français</button>
-<button type="button" data-lang="en" onclick="setLanguage('en')">🇬🇧 English</button>
+<div class="lang-switcher" aria-label="Language">
+<button type="button" data-lang="ar" onclick="setLanguage('ar')" aria-label="العربية" title="العربية">🇩🇿</button>
+<button type="button" data-lang="fr" onclick="setLanguage('fr')" aria-label="Français" title="Français">🇫🇷</button>
+<button type="button" data-lang="en" onclick="setLanguage('en')" aria-label="English" title="English">🇬🇧</button>
 </div>
 </header>
 
@@ -936,27 +936,31 @@ data-i18n="loading"></p>
 <select id="filterCategory"
 class="input"
 style="margin:0;min-width:150px"
-onchange="renderCars()">
+onchange="applyFilters()">
 </select>
 
 <select id="filterWilaya"
 class="input"
 style="margin:0;min-width:160px"
-onchange="renderCars()">
+onchange="applyFilters()">
 </select>
 
 <input
 id="filterSearch"
 class="input"
-name="carSearchQuery"
-autocomplete="off"
+type="search"
+name="thika_car_search"
+autocomplete="new-password"
+inputmode="search"
+spellcheck="false"
 data-i18n-ph="search"
 style="margin:0;flex:1;min-width:140px"
-oninput="renderCars()">
+oninput="renderCars()"
+onchange="applyFilters()">
 
 <button
 class="btn"
-onclick="renderCars()"
+onclick="applyFilters()"
 style="white-space:nowrap"
 data-i18n="filter">
 </button>
@@ -2232,6 +2236,36 @@ checkMail:[
 "✅ Check your email to confirm your account"
 ],
 
+emailNotConfirmed:[
+"⚠️ يجب تأكيد بريدك الإلكتروني أولاً. افتح رسالة التأكيد ثم ارجع للموقع.",
+"⚠️ Vous devez d'abord confirmer votre e-mail. Ouvrez le message de confirmation puis revenez au site.",
+"⚠️ You must confirm your email first. Open the confirmation email, then return to the site."
+],
+
+resendConfirm:[
+"إعادة إرسال رسالة التأكيد",
+"Renvoyer l'e-mail de confirmation",
+"Resend confirmation email"
+],
+
+confirmSent:[
+"✅ أُعيد إرسال رسالة التأكيد إلى بريدك.",
+"✅ L'e-mail de confirmation a été renvoyé.",
+"✅ The confirmation email was resent."
+],
+
+oneAdPerDay:[
+"⏳ يمكنك نشر إعلان واحد فقط كل 24 ساعة.",
+"⏳ Vous pouvez publier une seule annonce toutes les 24 heures.",
+"⏳ You can publish only one ad every 24 hours."
+],
+
+adRateError:[
+"⏳ لا يمكنك نشر إعلان جديد قبل مرور 24 ساعة.",
+"⏳ Vous ne pouvez pas publier une nouvelle annonce avant 24 heures.",
+"⏳ You cannot publish another ad before 24 hours have passed."
+],
+
 addCarTitle:[
 "إضافة سيارة",
 "Ajouter une voiture",
@@ -3220,13 +3254,6 @@ let currentCarData=null;
 let currentChatBuyerId=null;
 let carsCache=null;
 
-// حالة صلاحية لوحة الإدارة. لا توجد صلاحية إدارية معرفة في الواجهة الحالية،
-// لذلك تبقى false حتى يتم ربطها بسياسة/جدول إداري آمن في Supabase.
-async function refreshAdminStatus(){
-  isAdmin=false;
-  if(!currentUser) return;
-}
-
 async function initAuth(){
 
   const{
@@ -3487,9 +3514,22 @@ async function doLogin(){
 
     return showErr(
       "loginError",
-      error.message.includes("Invalid login")
-      ?t("badLogin")
-      :error.message
+      /email not confirmed/i.test(error.message)
+      ?t("emailNotConfirmed")
+      :(error.message.includes("Invalid login")
+        ?t("badLogin")
+        :error.message)
+    );
+
+  }
+
+  if(!data?.user?.email_confirmed_at && !data?.user?.confirmed_at){
+
+    await supabaseClient.auth.signOut();
+
+    return showErr(
+      "loginError",
+      t("emailNotConfirmed")
     );
 
   }
@@ -3682,27 +3722,53 @@ async function doSignup(){
 
   }
 
-  currentUser=
-    data.session?.user||null;
-
-  if(currentUser){
-
-    closeModal("signupModal");
-
-    updateHeader();
-
-    loadCars();
-
-  }else{
-
-    showErr(
-      "signupError",
-      t("checkMail"),
-      true
-    );
-
+  /* لا نسمح بالدخول مباشرة بعد التسجيل.
+     حتى لو أعاد Supabase جلسة بسبب إعدادات المشروع،
+     نغلقها ونطلب تأكيد البريد أولاً. */
+  if(data?.session){
+    await supabaseClient.auth.signOut();
   }
 
+  currentUser=null;
+  isAdmin=false;
+  updateHeader();
+
+  showErr(
+    "signupError",
+    t("checkMail")+
+      `\n\n<a href="#" onclick="resendConfirmationEmail();return false" style="color:#1e40af;font-weight:800">${t("resendConfirm")}</a>`,
+    true
+  );
+
+  document.getElementById("signupError").innerHTML=
+    t("checkMail")+
+    `<br><br><a href="#" onclick="resendConfirmationEmail();return false" style="color:#1e40af;font-weight:800">${t("resendConfirm")}</a>`;
+
+}
+
+async function resendConfirmationEmail(){
+
+  const email=document
+    .getElementById("signupEmail")
+    .value
+    .trim()
+    .toLowerCase();
+
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    return showErr("signupError",t("badEmail"));
+  }
+
+  const {error}=await supabaseClient.auth.resend({
+    type:"signup",
+    email,
+    options:{emailRedirectTo:window.location.href}
+  });
+
+  if(error){
+    return showErr("signupError",error.message);
+  }
+
+  showErr("signupError",t("confirmSent"),true);
 }
 
 async function logout(){
@@ -3761,6 +3827,14 @@ async function loadCars(){
 
 }
 
+function applyFilters(){
+  const input=document.getElementById("filterSearch");
+  if(input && input.value.includes("@")){
+    input.value="";
+  }
+  renderCars();
+}
+
 function renderCars(){
 
   if(!carsCache)return;
@@ -3775,10 +3849,9 @@ function renderCars(){
       "filterWilaya"
     ).value;
 
-  const q=
-    document.getElementById(
-      "filterSearch"
-    ).value
+  const searchInput=document.getElementById("filterSearch");
+
+  const q=(searchInput?.value||"")
     .trim()
     .toLowerCase();
 
@@ -3992,6 +4065,26 @@ async function addCar(){
       "publishBtn"
     );
 
+  /* حدّ سبام بسيط: إعلان واحد لكل حساب خلال 24 ساعة.
+     يجب دعم هذا أيضاً بسياسة/Trigger في Supabase للحماية من التحايل المباشر على API. */
+  const since=new Date(Date.now()-24*60*60*1000).toISOString();
+  const {data:recentAds,error:rateError}=await supabaseClient
+    .from("cars")
+    .select("id,created_at")
+    .eq("user_id",currentUser.id)
+    .gte("created_at",since)
+    .limit(1);
+
+  if(rateError){
+    alert(rateError.message);
+    return;
+  }
+
+  if(recentAds?.length){
+    alert(t("oneAdPerDay"));
+    return;
+  }
+
   const files=
     Array.from(
       document.getElementById(
@@ -4160,7 +4253,9 @@ async function addCar(){
 
   if(error){
 
-    alert(error.message);
+    alert(/one ad every 24 hours/i.test(error.message)
+      ?t("adRateError")
+      :error.message);
 
     return;
   }
@@ -4896,9 +4991,26 @@ function contactUs(){
    التشغيل
 ========================================================= */
 
-document.getElementById(
-  "filterSearch"
-).value="";
+/*
+   حماية خانة البحث من تعبئة البريد تلقائياً:
+   بعض المتصفحات تستعيد قيمة حقول النماذج عند فتح الصفحة.
+   خانة البحث ليست خانة بريد، لذلك نفرغها عند كل تحميل للصفحة
+   وبعد أن ينتهي المتصفح من محاولة استعادة قيم النماذج.
+*/
+function clearCarSearch(){
+  const input=document.getElementById("filterSearch");
+  if(!input)return;
+  input.value="";
+  if(carsCache) renderCars();
+}
+
+clearCarSearch();
+window.addEventListener("pageshow",clearCarSearch);
+window.addEventListener("load",()=>{
+  clearCarSearch();
+  setTimeout(clearCarSearch,100);
+  setTimeout(clearCarSearch,500);
+});
 
 document.getElementById(
   "footerContactEmail"
