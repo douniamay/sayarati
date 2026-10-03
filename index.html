@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+<!-- Flags fixed: DZ / FR / GB -->
 <title>Thika Auto .dz — سوق السيارات</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -104,6 +105,64 @@ header h1 span{
   cursor:pointer;
   font-weight:700;
   font-size:12px
+}
+
+.flag-icon{
+  display:block;
+  width:30px;
+  height:20px;
+  border-radius:3px;
+  box-shadow:0 0 0 1px rgba(0,0,0,.18);
+  position:relative;
+  overflow:hidden;
+}
+.flag-dz{
+  background:linear-gradient(90deg,#006233 0 50%,#fff 50% 100%);
+}
+.flag-dz::before{
+  content:"";
+  position:absolute;
+  width:9px;
+  height:9px;
+  left:12px;
+  top:5px;
+  border:2px solid #d21034;
+  border-radius:50%;
+  border-left-color:transparent;
+  transform:rotate(-18deg);
+}
+.flag-dz::after{
+  content:"★";
+  position:absolute;
+  left:14px;
+  top:3px;
+  color:#d21034;
+  font-size:9px;
+  line-height:14px;
+}
+.flag-fr{
+  background:linear-gradient(90deg,#0055a4 0 33.333%,#fff 33.333% 66.666%,#ef4135 66.666% 100%);
+}
+.flag-gb{
+  background:#012169;
+}
+.flag-gb::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(90deg,transparent 43%,#fff 43% 57%,transparent 57%),
+    linear-gradient(0deg,transparent 35%,#fff 35% 65%,transparent 65%),
+    linear-gradient(45deg,transparent 43%,#fff 43% 57%,transparent 57%),
+    linear-gradient(-45deg,transparent 43%,#fff 43% 57%,transparent 57%);
+}
+.flag-gb::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(90deg,transparent 47%,#c8102e 47% 53%,transparent 53%),
+    linear-gradient(0deg,transparent 40%,#c8102e 40% 60%,transparent 60%);
 }
 
 .lang-switcher button.active{
@@ -905,9 +964,9 @@ footer a{
 <div class="header-actions" id="headerActions"></div>
 
 <div class="lang-switcher" aria-label="Language">
-<button type="button" data-lang="ar" onclick="setLanguage('ar')" aria-label="العربية" title="العربية">🇩🇿</button>
-<button type="button" data-lang="fr" onclick="setLanguage('fr')" aria-label="Français" title="Français">🇫🇷</button>
-<button type="button" data-lang="en" onclick="setLanguage('en')" aria-label="English" title="English">🇬🇧</button>
+<button type="button" data-lang="ar" onclick="setLanguage('ar')" aria-label="العربية" title="العربية"><span class="flag-icon flag-dz" aria-hidden="true"></span></button>
+<button type="button" data-lang="fr" onclick="setLanguage('fr')" aria-label="Français" title="Français"><span class="flag-icon flag-fr" aria-hidden="true"></span></button>
+<button type="button" data-lang="en" onclick="setLanguage('en')" aria-label="English" title="English"><span class="flag-icon flag-gb" aria-hidden="true"></span></button>
 </div>
 </header>
 
